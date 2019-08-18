@@ -38,6 +38,18 @@
 
 
     <TextView
+        android:id="@+id/textview_load"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:text="--"
+        android:textColor="#000"
+        app:layout_constraintTop_toBottomOf="@id/from_date"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+
+    <TextView
         android:id="@+id/orderdetails"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -50,12 +62,25 @@
         app:layout_constraintStart_toStartOf="parent"/>
 
     <EditText
+        android:id="@+id/item_date"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:hint="DATE"
+        android:focusable="false"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/orderdetails"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+
+    <EditText
         android:id="@+id/item_name"
         android:layout_marginTop="16dp"
         android:layout_width="match_parent"
         android:hint="ITEM NAME"
+        android:singleLine="true"
+        android:imeOptions="actionNext"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/orderdetails"
+        app:layout_constraintTop_toBottomOf="@id/item_date"
         app:layout_constraintStart_toStartOf="parent"/>
 
 
@@ -65,8 +90,10 @@
         android:layout_height="wrap_content"
         android:hint="ITEM QUANTITY"
         android:inputType="number"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="184dp" />
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/item_name"
+        app:layout_constraintStart_toStartOf="parent"
+ />
 
     <EditText
         android:id="@+id/item_price"
@@ -88,13 +115,23 @@
         app:layout_constraintTop_toBottomOf="@id/item_price"
         app:layout_constraintStart_toStartOf="parent"/>
 
+
+    <Button
+        android:id="@+id/btn_load"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:hint="LOAD PREVIOUS SALES"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/btn_add"
+        app:layout_constraintStart_toStartOf="parent"/>
+
     <Button
         android:id="@+id/btn_finish"
         android:layout_marginTop="16dp"
         android:layout_width="match_parent"
         android:hint="PRINT"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/btn_add"
+        app:layout_constraintTop_toBottomOf="@id/btn_load"
         app:layout_constraintStart_toStartOf="parent"/>
 
 
