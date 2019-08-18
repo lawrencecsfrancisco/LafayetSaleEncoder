@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:padding="16dp">
+
+    <EditText
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guideline"
+        android:id="@+id/from_date"
+        android:layout_width="0dp"
+        android:focusable="false"
+        android:layout_height="wrap_content"
+        android:hint="FROM DATE"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <EditText
+
+        app:layout_constraintStart_toStartOf="@id/guideline"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/to_date"
+        android:layout_width="0dp"
+        android:focusable="false"
+        android:layout_height="wrap_content"
+        android:hint="TO DATE"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+
+    <TextView
+        android:id="@+id/orderdetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text=" DETAILS"
+        android:textSize="22dp"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/from_date"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <EditText
+        android:id="@+id/item_name"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:hint="ITEM NAME"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/orderdetails"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+
+    <EditText
+        android:id="@+id/item_quantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="ITEM QUANTITY"
+        android:inputType="number"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="184dp" />
+
+    <EditText
+        android:id="@+id/item_price"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:hint="ITEM PRICE"
+        android:inputType="number"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/item_quantity"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+
+    <Button
+        android:id="@+id/btn_add"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:hint="ADD ITEM"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/item_price"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <Button
+        android:id="@+id/btn_finish"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:hint="PRINT"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/btn_add"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+
+
+
+
+
+
+</android.support.constraint.ConstraintLayout>
