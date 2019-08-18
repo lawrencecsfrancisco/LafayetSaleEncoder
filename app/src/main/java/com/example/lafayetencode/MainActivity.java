@@ -201,7 +201,8 @@ public class MainActivity extends AppCompatActivity {
                 String json = gson.toJson(itemModels);
                 prefsEditor.putString("MyObject", json);
                 prefsEditor.putString("time", String.valueOf(Calendar.getInstance().getTime()));
-
+                prefsEditor.putString("from_date", from_date.getText().toString());
+                prefsEditor.putString("to_date", to_date.getText().toString());
                 prefsEditor.apply();
             }
         });
@@ -219,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 createPDF();
                                 total = 0;
+                                prevDate = "";
                             }
                         })
 
@@ -238,13 +240,21 @@ public class MainActivity extends AppCompatActivity {
                 Gson gson = new Gson();
                 String json = appSharedPrefs.getString("MyObject", "");
                 String time = appSharedPrefs.getString("time", "");
+                String from_time = appSharedPrefs.getString("from_date", "");
+                String to_time = appSharedPrefs.getString("to_date", "");
                 Type type = new TypeToken<ArrayList<ItemModel>>(){}.getType();
-                itemModels = gson.fromJson(json, type);
-                if (itemModels == null || itemModels.isEmpty()) {
-                    itemModels = new ArrayList<>();
+
+
+                ArrayList<ItemModel> tempItemModels = new ArrayList<>();
+                tempItemModels = gson.fromJson(json, type);
+                if (tempItemModels == null || tempItemModels.isEmpty()) {
                     Toast.makeText(MainActivity.this, "No saved data", Toast.LENGTH_SHORT).show();
                 } else {
+                    itemModels = tempItemModels;
+                    prevDate = "";
                     textview_load.setText("Last Saved :" + time);
+                    from_date.setText(from_time);
+                    to_date.setText(to_time);
                     deletePdf = false;
                     createPDF();
                 }
@@ -355,7 +365,9 @@ public class MainActivity extends AppCompatActivity {
             table.addCell(getCell(String.valueOf(itemModels.get(i).item_quantity + "(" + itemModels.get(i).item_price +")" ), PdfPCell.ALIGN_CENTER));
             totalPerItem = itemModels.get(i).item_quantity * itemModels.get(i).item_price;
             table.addCell(getCell(String.valueOf(totalPerItem), PdfPCell.ALIGN_RIGHT));
+
             total =  total + totalPerItem;
+
             currDate = itemModels.get(i).getItem_date();
             if (!prevDate.equals(currDate)) {
                 currDate = itemModels.get(i).getItem_date();
