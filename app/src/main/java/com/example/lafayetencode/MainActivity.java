@@ -308,6 +308,7 @@ public class MainActivity extends AppCompatActivity {
                         deletePdf = false;
                     }
                 createPDF();
+                prevDate = "";
                     total = 0;
                 }
 
