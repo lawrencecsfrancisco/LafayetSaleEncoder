@@ -72,24 +72,30 @@ public class MainActivity extends AppCompatActivity {
 
     Button btn_add, btn_finish, btn_load;
 
-    int total = 0;
+    double total = 0;
 
     int whichDate = 0;
 
     ArrayList<ItemModel> itemModels = new ArrayList<>();
 
+    ArrayList<ExpenseModel> expenseModels = new ArrayList<>();
+
     String currDate = "";
 
     String prevDate = "";
 
-    TextView textview_load;
+    TextView textview_load,orderdetails;
 
     boolean deletePdf = false;
+
+    boolean isExpense = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
                      setContentView(R.layout.activity_main);
+
 
                      to_date = findViewById(R.id.to_date);
                      from_date = findViewById(R.id.from_date);
@@ -101,6 +107,11 @@ public class MainActivity extends AppCompatActivity {
                      btn_finish = findViewById(R.id.btn_finish);
                      btn_load = findViewById(R.id.btn_load);
                      textview_load = findViewById(R.id.textview_load);
+                     orderdetails = findViewById(R.id.orderdetails);
+
+        if (checkSalesSummaryExist()){
+            isExpense = true;
+        }
 
 
         if (Build.VERSION.SDK_INT >= 23) {
@@ -171,63 +182,91 @@ public class MainActivity extends AppCompatActivity {
         btn_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ItemModel itemModel = new ItemModel();
-                itemModel.setItem_date(item_date.getText().toString());
-                itemModel.setItem_name(item_name.getText().toString());
-                if (item_price.getText().toString().equals("")) {
-                    Toast.makeText(MainActivity.this, "Input price", Toast.LENGTH_SHORT).show();
-                    return;
+                if (!isExpense) {
+                    ItemModel itemModel = new ItemModel();
+                    itemModel.setItem_date(item_date.getText().toString());
+                    itemModel.setItem_name(item_name.getText().toString());
+                    if (item_price.getText().toString().equals("")) {
+                        Toast.makeText(MainActivity.this, "Input price", Toast.LENGTH_SHORT).show();
+                        return;
+                    } else {
+                        itemModel.setItem_price(Integer.parseInt(item_price.getText().toString()));
+                    }
+                    if (item_quantity.getText().toString().equals("")) {
+                        Toast.makeText(MainActivity.this, "Input quantity", Toast.LENGTH_SHORT).show();
+                        return;
+                    } else {
+                        itemModel.setItem_quantity(Double.parseDouble(item_quantity.getText().toString()));
+                    }
+
+                    item_name.setText("");
+                    item_price.setText("");
+                    item_quantity.setText("");
+                    itemModels.add(itemModel);
+
+                    Toast.makeText(MainActivity.this, "Item successfully added", Toast.LENGTH_SHORT).show();
+
+                    saveDataModel();
                 } else {
-                    itemModel.setItem_price(Integer.parseInt(item_price.getText().toString()));
+                    ExpenseModel expenseModel = new ExpenseModel();
+                    expenseModel.setItem_name(item_name.getText().toString());
+                    if (item_price.getText().toString().equals("")) {
+                        Toast.makeText(MainActivity.this, "Input price", Toast.LENGTH_SHORT).show();
+                        return;
+                    } else {
+                        expenseModel.setItem_price(Integer.parseInt(item_price.getText().toString()));
+                    }
+                    item_name.setText("");
+                    item_price.setText("");
+                    expenseModels.add(expenseModel);
+
+                    Toast.makeText(MainActivity.this, "Item successfully added", Toast.LENGTH_SHORT).show();
+                    saveDataModel();
+
                 }
-                if (item_quantity.getText().toString().equals("")) {
-                    Toast.makeText(MainActivity.this, "Input quantity", Toast.LENGTH_SHORT).show();
-                    return;
-                } else {
-                    itemModel.setItem_quantity(Integer.parseInt(item_quantity.getText().toString()));
-                }
-
-                item_name.setText("");
-                item_price.setText("");
-                item_quantity.setText("");
-                itemModels.add(itemModel);
-
-                Toast.makeText(MainActivity.this, "Item successfully added", Toast.LENGTH_SHORT).show();
-
-                SharedPreferences appSharedPrefs = PreferenceManager
-                        .getDefaultSharedPreferences(MainActivity.this.getApplicationContext());
-                SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
-                Gson gson = new Gson();
-                String json = gson.toJson(itemModels);
-                prefsEditor.putString("MyObject", json);
-                prefsEditor.putString("time", String.valueOf(Calendar.getInstance().getTime()));
-                prefsEditor.putString("from_date", from_date.getText().toString());
-                prefsEditor.putString("to_date", to_date.getText().toString());
-                prefsEditor.apply();
             }
         });
 
         btn_finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Show sale")
-                        .setMessage("Are you sure you want to print this entry?")
-
-                        // Specifying a listener allows you to take an action before dismissing the dialog.
-                        // The dialog is automatically dismissed when a dialog button is clicked.
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                createPDF();
-                                total = 0;
-                                prevDate = "";
-                            }
-                        })
-
-                        // A null listener allows the button to dismiss the dialog and take no further action.
-                        .setNegativeButton(android.R.string.no, null)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
+                if (!isExpense) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Finish sale")
+                            .setMessage("Proceed in computing expenses")
+                            // Specifying a listener allows you to take an action before dismissing the dialog.
+                            // The dialog is automatically dismissed when a dialog button is clicked.
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    prevDate = "";
+                                    isExpense = true;
+                                    orderdetails.setText("EXPENSE DETAILS");
+                                    item_quantity.setVisibility(View.GONE);
+                                    item_date.setVisibility(View.GONE);
+                                    btn_finish.setText("FINISH");
+                                }
+                            })
+                            // A null listener allows the button to dismiss the dialog and take no further action.
+                            .setNegativeButton(android.R.string.no, null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                } else {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Print summary?")
+                            .setMessage("Are you sure you are done computing sales?")
+                            // Specifying a listener allows you to take an action before dismissing the dialog.
+                            // The dialog is automatically dismissed when a dialog button is clicked.
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    deletePdf = true;
+                                    createPDF();
+                                }
+                            })
+                            // A null listener allows the button to dismiss the dialog and take no further action.
+                            .setNegativeButton(android.R.string.no, null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
 
             }
         });
@@ -237,29 +276,42 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 SharedPreferences appSharedPrefs = PreferenceManager
                         .getDefaultSharedPreferences(MainActivity.this.getApplicationContext());
-                Gson gson = new Gson();
-                String json = appSharedPrefs.getString("MyObject", "");
+                String itemModel = appSharedPrefs.getString("MyObject", "");
+                String expenseModel = appSharedPrefs.getString("MyObject2", "");
                 String time = appSharedPrefs.getString("time", "");
                 String from_time = appSharedPrefs.getString("from_date", "");
                 String to_time = appSharedPrefs.getString("to_date", "");
-                Type type = new TypeToken<ArrayList<ItemModel>>(){}.getType();
+                Type itemType = new TypeToken<ArrayList<ItemModel>>(){}.getType();
+                Type expenseType = new TypeToken<ArrayList<ExpenseModel>>(){}.getType();
 
-
+                Gson gson = new Gson();
                 ArrayList<ItemModel> tempItemModels = new ArrayList<>();
-                tempItemModels = gson.fromJson(json, type);
-                if (tempItemModels == null || tempItemModels.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "No saved data", Toast.LENGTH_SHORT).show();
-                } else {
-                    itemModels = tempItemModels;
-                    prevDate = "";
-                    textview_load.setText("Last Saved :" + time);
-                    from_date.setText(from_time);
-                    to_date.setText(to_time);
-                    deletePdf = false;
-                    createPDF();
+                ArrayList<ExpenseModel> tempExpenseModels = new ArrayList<>();
+                tempItemModels = gson.fromJson(itemModel, itemType);
+                tempExpenseModels = gson.fromJson(expenseModel,expenseType);
+                    if (tempItemModels == null || tempItemModels.isEmpty()) {
+                        Toast.makeText(MainActivity.this, "No Sales saved data", Toast.LENGTH_SHORT).show();
+                        return;
+                    } else {
+                        itemModels = tempItemModels;
+                        prevDate = "";
+                        textview_load.setText("Last Saved :" + time);
+                        from_date.setText(from_time);
+                        to_date.setText(to_time);
+                        deletePdf = false;
+                    }
+                    if (tempExpenseModels == null || tempExpenseModels.isEmpty()) {
+                        Toast.makeText(MainActivity.this, "No Expense saved data", Toast.LENGTH_SHORT).show();
+                    } else {
+                        expenseModels = tempExpenseModels;
+                        textview_load.setText("Last Saved :" + time);
+                        deletePdf = false;
+                    }
+                createPDF();
+                    total = 0;
                 }
 
-            }
+
         });
 
 
@@ -281,9 +333,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createPDF(){
-        deletePdf = true;
-        Document document = new Document();
 // Location to save
+        Document document = new Document();
+
+
         try {
             PdfWriter.getInstance(document, new FileOutputStream(FILE));
         } catch (DocumentException e) {
@@ -299,9 +352,6 @@ public class MainActivity extends AppCompatActivity {
         document.addAuthor("lafayet order");
         document.addCreator("Kiko lawrence");
 
-        BaseColor mColorAccent = new BaseColor(0, 153, 204, 255);
-        float mHeadingFontSize = 20.0f;
-        float mValueFontSize = 26.0f;
 
         LineSeparator lineSeparator = new LineSeparator();
         lineSeparator.setLineColor(new BaseColor(0, 0, 0, 68));
@@ -315,11 +365,11 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        Font mOrderDetailsTitleFont = new Font(urName, 36.0f, Font.NORMAL, BaseColor.BLACK);
+        Font mOrderDetailsTitleFont = new Font(urName, 30.0f, Font.NORMAL, BaseColor.BLACK);
         Font dateFont = new Font(urName, 14.0f, Font.NORMAL, BaseColor.BLACK);
 
         // Creating Chunk
-        Chunk mOrderDetailsTitleChunk = new Chunk("Sale Details ", mOrderDetailsTitleFont);
+        Chunk mOrderDetailsTitleChunk = new Chunk("SALE SUMMARY - PASIG  ", mOrderDetailsTitleFont);
         Chunk dateChunk = new Chunk("Date : " + from_date.getText().toString() +" - " +
                 to_date.getText().toString() +"\n\n", dateFont);
 
@@ -329,40 +379,36 @@ public class MainActivity extends AppCompatActivity {
 
         Paragraph date = new Paragraph(dateChunk);
         date.setAlignment(Element.ALIGN_CENTER);
+        date.setSpacingBefore(5);
+
+        Paragraph address = new Paragraph("87 C. Raymundo Ave, Pasig, 1606 Metro Manila");
+        address.setAlignment(Element.ALIGN_CENTER);
 
         try {
             document.add(mOrderDetailsTitleParagraph);
-            document.add(new Paragraph("\n"));
+            document.add(address);
             document.add(date);
             document.add(lineSeparator);
             PdfPTable table = new PdfPTable(3);
             table.setWidthPercentage(100);
-            table.addCell(getCell("Item Name", PdfPCell.ALIGN_LEFT));
-            table.addCell(getCell("Quantity", PdfPCell.ALIGN_CENTER));
+            table.addCell(getCell("Quantity", PdfPCell.ALIGN_LEFT));
+            table.addCell(getCell("Item Name", PdfPCell.ALIGN_CENTER));
             table.addCell(getCell("Price", PdfPCell.ALIGN_RIGHT));
             document.add(table);
             document.add(new Paragraph("\n"));
         } catch (DocumentException e) {
             e.printStackTrace();
         }
-     /*   Font mOrderIdFont = new Font(urName, mHeadingFontSize, Font.NORMAL, mColorAccent);
-        Chunk mOrderIdChunk = new Chunk("Order No:", mOrderIdFont);
-        Paragraph mOrderIdParagraph = new Paragraph(mOrderIdChunk);
-        try {
-            document.add(mOrderIdParagraph);
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        }*/
 
      //START OF ORDER DETAILS
         if (itemModels != null && !itemModels.isEmpty()){
             for (int i = 0; i < itemModels.size() ; i++) {
         try {
-            int totalPerItem = 0;
+            double totalPerItem = 0.0;
             PdfPTable table = new PdfPTable(3);
             table.setWidthPercentage(100);
-            table.addCell(getCell(itemModels.get(i).item_name, PdfPCell.ALIGN_LEFT));
-            table.addCell(getCell(String.valueOf(itemModels.get(i).item_quantity + "(" + itemModels.get(i).item_price +")" ), PdfPCell.ALIGN_CENTER));
+            table.addCell(getCell(String.valueOf(itemModels.get(i).item_quantity + "(" + itemModels.get(i).item_price +")" ), PdfPCell.ALIGN_LEFT));
+            table.addCell(getCell(itemModels.get(i).item_name, PdfPCell.ALIGN_CENTER));
             totalPerItem = itemModels.get(i).item_quantity * itemModels.get(i).item_price;
             table.addCell(getCell(String.valueOf(totalPerItem), PdfPCell.ALIGN_RIGHT));
 
@@ -370,8 +416,10 @@ public class MainActivity extends AppCompatActivity {
 
             currDate = itemModels.get(i).getItem_date();
             if (!prevDate.equals(currDate)) {
+                Paragraph dateCurr = new Paragraph("*****"+currDate+"*****");
+                date.setAlignment(Element.ALIGN_LEFT);
                 currDate = itemModels.get(i).getItem_date();
-                document.add(new Paragraph(currDate));
+                document.add(dateCurr);
                 prevDate = currDate;
             }
             document.add(table);
@@ -386,6 +434,7 @@ public class MainActivity extends AppCompatActivity {
             document.add(lineSeparator);
             Chunk glue = new Chunk(new VerticalPositionMark());
             Paragraph p = new Paragraph("End of details");
+            p.setSpacingAfter(30);
             p.add(new Chunk(glue));
             p.add("Total Price : " + total);
             document.add(p);
@@ -398,15 +447,79 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        Font expensesSummary = new Font(urName, 28.0f, Font.NORMAL, BaseColor.BLACK);
+        // Creating Chunk
+        Chunk exPensesSummary = new Chunk("EXPENSES SUMMARY - PASIG  ", expensesSummary);
+
+        Paragraph expensesTitleSummary = new Paragraph(exPensesSummary);
+        expensesTitleSummary.setAlignment(Element.ALIGN_CENTER);
+        expensesTitleSummary.setSpacingAfter(5);
+
+        try {
+            PdfPTable table = new PdfPTable(2);
+            table.setWidthPercentage(100);
+            table.addCell(getCell("Item Name", PdfPCell.LEFT));
+            table.addCell(getCell("Expense", PdfPCell.ALIGN_RIGHT));
+            document.add(expensesTitleSummary);
+            document.add(lineSeparator);
+            document.add(new Paragraph("\n"));
+            document.add(table);
+            document.add(new Paragraph("\n"));
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
+
+        int totalExpenses = 0;
+        //START OF EXPENSE DETAILS
+        if (expenseModels != null && !expenseModels.isEmpty()) {
+            for (int i = 0; i < expenseModels.size(); i++) {
+                try {
+                    PdfPTable table = new PdfPTable(2);
+                    table.setWidthPercentage(100);
+                    table.addCell(getCell(expenseModels.get(i).getItem_name(), PdfPCell.ALIGN_LEFT));
+                    table.addCell(getCell(String.valueOf(expenseModels.get(i).getItem_price()), PdfPCell.ALIGN_RIGHT));
+                    document.add(table);
+
+                    totalExpenses += expenseModels.get(i).getItem_price();
+                    if (i == expenseModels.size() - 1) {
+                        document.add(new Paragraph("\n"));
+                        document.add(lineSeparator);
+                        Chunk glue = new Chunk(new VerticalPositionMark());
+                        Paragraph p = new Paragraph("End of details");
+                        p.add(new Chunk(glue));
+                        p.add("Total Expenses : " + totalExpenses);
+                        document.add(p);
+                        document.add(new Paragraph("\n"));
+                    }
+                } catch (DocumentException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        String summary = String.valueOf(total - totalExpenses);
+        Font summaryFont = new Font(urName, 30.0f, Font.BOLD, BaseColor.BLACK);
+        Chunk summaryOfEverything = new Chunk("TOTAL GROSS : " + "₱" +summary , summaryFont);
+        Paragraph summaryParagraph = new Paragraph(summaryOfEverything);
+        summaryParagraph.setAlignment(Element.ALIGN_CENTER);
+
+        try {
+            document.add( summaryParagraph);
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
+
         document.close();
         if (deletePdf) {
             SharedPreferences appSharedPrefs = PreferenceManager
                     .getDefaultSharedPreferences(MainActivity.this.getApplicationContext());
-        appSharedPrefs.edit().clear().apply();
+            appSharedPrefs.edit().clear().apply();
         }
-         openPdf();
+        openPdf();
 
     }
+
+
 
     public PdfPCell getCell(String text, int alignment) {
         PdfPCell cell = new PdfPCell(new Phrase(text));
@@ -417,7 +530,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openPdf() {
-
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
 
@@ -439,6 +551,40 @@ public class MainActivity extends AppCompatActivity {
         } catch (Throwable t) {
             t.printStackTrace();
             //attemptInstallViewer();
+        }
+    }
+
+    public void saveDataModel(){
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(MainActivity.this.getApplicationContext());
+        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+        Gson gson = new Gson();
+        String itemModel = gson.toJson(itemModels);
+        String expenseModel = gson.toJson(expenseModels);
+        prefsEditor.putString("MyObject", itemModel);
+        prefsEditor.putString("MyObject2", expenseModel);
+        prefsEditor.putString("time", String.valueOf(Calendar.getInstance().getTime()));
+        prefsEditor.putString("from_date", from_date.getText().toString());
+        prefsEditor.putString("to_date", to_date.getText().toString());
+        prefsEditor.apply();
+    }
+
+    public boolean checkSalesSummaryExist(){
+        SharedPreferences appSharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(MainActivity.this.getApplicationContext());
+        String itemModel = appSharedPrefs.getString("MyObject", "");
+        if (itemModel == null || itemModel.isEmpty()){
+            orderdetails.setText("SALES DETAILS");
+            item_quantity.setVisibility(View.VISIBLE);
+            item_date.setVisibility(View.VISIBLE);
+            btn_finish.setText("NEXT");
+            return  false;
+        } else {
+            orderdetails.setText("EXPENSE DETAILS");
+            item_quantity.setVisibility(View.GONE);
+            item_date.setVisibility(View.GONE);
+            btn_finish.setText("FINISH");
+            return  true;
         }
 
     }
