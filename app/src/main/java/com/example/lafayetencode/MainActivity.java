@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
     String prevDate = "";
 
-    TextView textview_load,orderdetails;
+    TextView textview_load, orderdetails;
 
     boolean deletePdf = false;
 
@@ -94,22 +94,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-                     setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
 
-                     to_date = findViewById(R.id.to_date);
-                     from_date = findViewById(R.id.from_date);
-                     item_date = findViewById(R.id.item_date);
-                     item_name = findViewById(R.id.item_name);
-                     item_quantity = findViewById(R.id.item_quantity);
-                     item_price  = findViewById(R.id.item_price);
-                     btn_add = findViewById(R.id.btn_add);
-                     btn_finish = findViewById(R.id.btn_finish);
-                     btn_load = findViewById(R.id.btn_load);
-                     textview_load = findViewById(R.id.textview_load);
-                     orderdetails = findViewById(R.id.orderdetails);
+        to_date = findViewById(R.id.to_date);
+        from_date = findViewById(R.id.from_date);
+        item_date = findViewById(R.id.item_date);
+        item_name = findViewById(R.id.item_name);
+        item_quantity = findViewById(R.id.item_quantity);
+        item_price = findViewById(R.id.item_price);
+        btn_add = findViewById(R.id.btn_add);
+        btn_finish = findViewById(R.id.btn_finish);
+        btn_load = findViewById(R.id.btn_load);
+        textview_load = findViewById(R.id.textview_load);
+        orderdetails = findViewById(R.id.orderdetails);
 
-        if (checkSalesSummaryExist()){
+        if (checkSalesSummaryExist()) {
             isExpense = true;
         }
 
@@ -120,10 +120,14 @@ public class MainActivity extends AppCompatActivity {
                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
                             Manifest.permission.READ_EXTERNAL_STORAGE
                     ).withListener(new MultiplePermissionsListener() {
-                @Override public void onPermissionsChecked(MultiplePermissionsReport report) {
+                @Override
+                public void onPermissionsChecked(MultiplePermissionsReport report) {
 
                 }
-                @Override public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {  }
+
+                @Override
+                public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                }
             }).check();
 
         } else {
@@ -281,40 +285,41 @@ public class MainActivity extends AppCompatActivity {
                 String time = appSharedPrefs.getString("time", "");
                 String from_time = appSharedPrefs.getString("from_date", "");
                 String to_time = appSharedPrefs.getString("to_date", "");
-                Type itemType = new TypeToken<ArrayList<ItemModel>>(){}.getType();
-                Type expenseType = new TypeToken<ArrayList<ExpenseModel>>(){}.getType();
+                Type itemType = new TypeToken<ArrayList<ItemModel>>() {
+                }.getType();
+                Type expenseType = new TypeToken<ArrayList<ExpenseModel>>() {
+                }.getType();
 
                 Gson gson = new Gson();
                 ArrayList<ItemModel> tempItemModels = new ArrayList<>();
                 ArrayList<ExpenseModel> tempExpenseModels = new ArrayList<>();
                 tempItemModels = gson.fromJson(itemModel, itemType);
-                tempExpenseModels = gson.fromJson(expenseModel,expenseType);
-                    if (tempItemModels == null || tempItemModels.isEmpty()) {
-                        Toast.makeText(MainActivity.this, "No Sales saved data", Toast.LENGTH_SHORT).show();
-                        return;
-                    } else {
-                        itemModels = tempItemModels;
-                        prevDate = "";
-                        textview_load.setText("Last Saved :" + time);
-                        from_date.setText(from_time);
-                        to_date.setText(to_time);
-                        deletePdf = false;
-                    }
-                    if (tempExpenseModels == null || tempExpenseModels.isEmpty()) {
-                        Toast.makeText(MainActivity.this, "No Expense saved data", Toast.LENGTH_SHORT).show();
-                    } else {
-                        expenseModels = tempExpenseModels;
-                        textview_load.setText("Last Saved :" + time);
-                        deletePdf = false;
-                    }
+                tempExpenseModels = gson.fromJson(expenseModel, expenseType);
+                if (tempItemModels == null || tempItemModels.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "No Sales saved data", Toast.LENGTH_SHORT).show();
+                    return;
+                } else {
+                    itemModels = tempItemModels;
+                    prevDate = "";
+                    textview_load.setText("Last Saved :" + time);
+                    from_date.setText(from_time);
+                    to_date.setText(to_time);
+                    deletePdf = false;
+                }
+                if (tempExpenseModels == null || tempExpenseModels.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "No Expense saved data", Toast.LENGTH_SHORT).show();
+                } else {
+                    expenseModels = tempExpenseModels;
+                    textview_load.setText("Last Saved :" + time);
+                    deletePdf = false;
+                }
                 createPDF();
                 prevDate = "";
-                    total = 0;
-                }
+                total = 0;
+            }
 
 
         });
-
 
 
     }
@@ -327,13 +332,12 @@ public class MainActivity extends AppCompatActivity {
             to_date.setText(sdf.format(myCalendar.getTime()));
         } else if (whichDate == 1) {
             from_date.setText(sdf.format(myCalendar.getTime()));
-        }
-        else if (whichDate == 2) {
+        } else if (whichDate == 2) {
             item_date.setText(sdf.format(myCalendar.getTime()));
         }
     }
 
-    public void createPDF(){
+    public void createPDF() {
 // Location to save
         Document document = new Document();
 
@@ -371,8 +375,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Creating Chunk
         Chunk mOrderDetailsTitleChunk = new Chunk("SALE SUMMARY - PASIG  ", mOrderDetailsTitleFont);
-        Chunk dateChunk = new Chunk("Date : " + from_date.getText().toString() +" - " +
-                to_date.getText().toString() +"\n\n", dateFont);
+        Chunk dateChunk = new Chunk("Date : " + from_date.getText().toString() + " - " +
+                to_date.getText().toString() + "\n\n", dateFont);
 
 
         Paragraph mOrderDetailsTitleParagraph = new Paragraph(mOrderDetailsTitleChunk);
@@ -401,49 +405,49 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-     //START OF ORDER DETAILS
-        if (itemModels != null && !itemModels.isEmpty()){
-            for (int i = 0; i < itemModels.size() ; i++) {
-        try {
-            double totalPerItem = 0.0;
-            PdfPTable table = new PdfPTable(3);
-            table.setWidthPercentage(100);
-            table.addCell(getCell(String.valueOf(itemModels.get(i).item_quantity + "(" + itemModels.get(i).item_price +")" ), PdfPCell.ALIGN_LEFT));
-            table.addCell(getCell(itemModels.get(i).item_name, PdfPCell.ALIGN_CENTER));
-            totalPerItem = itemModels.get(i).item_quantity * itemModels.get(i).item_price;
-            table.addCell(getCell(String.valueOf(totalPerItem), PdfPCell.ALIGN_RIGHT));
+        //START OF ORDER DETAILS
+        if (itemModels != null && !itemModels.isEmpty()) {
+            for (int i = 0; i < itemModels.size(); i++) {
+                try {
+                    double totalPerItem = 0.0;
+                    PdfPTable table = new PdfPTable(3);
+                    table.setWidthPercentage(100);
+                    table.addCell(getCell(String.valueOf(itemModels.get(i).item_quantity + "(" + itemModels.get(i).item_price + ")"), PdfPCell.ALIGN_LEFT));
+                    table.addCell(getCell(itemModels.get(i).item_name, PdfPCell.ALIGN_CENTER));
+                    totalPerItem = itemModels.get(i).item_quantity * itemModels.get(i).item_price;
+                    table.addCell(getCell(String.valueOf(totalPerItem), PdfPCell.ALIGN_RIGHT));
 
-            total =  total + totalPerItem;
+                    total = total + totalPerItem;
 
-            currDate = itemModels.get(i).getItem_date();
-            if (!prevDate.equals(currDate)) {
-                Paragraph dateCurr = new Paragraph("*****"+currDate+"*****");
-                date.setAlignment(Element.ALIGN_LEFT);
-                currDate = itemModels.get(i).getItem_date();
-                document.add(dateCurr);
-                prevDate = currDate;
-            }
-            document.add(table);
+                    currDate = itemModels.get(i).getItem_date();
+                    if (!prevDate.equals(currDate)) {
+                        Paragraph dateCurr = new Paragraph("*****" + currDate + "*****");
+                        date.setAlignment(Element.ALIGN_LEFT);
+                        currDate = itemModels.get(i).getItem_date();
+                        document.add(dateCurr);
+                        prevDate = currDate;
+                    }
+                    document.add(table);
 
-          //  document.add(new Paragraph("TEST"));
+                    //  document.add(new Paragraph("TEST"));
        /*     document.add(new Chunk(lineSeparator));
             document.add(new Paragraph("TEST2"));
 */
 
-        if (i == itemModels.size()-1){
-            document.add(new Paragraph("\n"));
-            document.add(lineSeparator);
-            Chunk glue = new Chunk(new VerticalPositionMark());
-            Paragraph p = new Paragraph("End of details");
-            p.setSpacingAfter(30);
-            p.add(new Chunk(glue));
-            p.add("Total Price : " + total);
-            document.add(p);
+                    if (i == itemModels.size() - 1) {
+                        document.add(new Paragraph("\n"));
+                        document.add(lineSeparator);
+                        Chunk glue = new Chunk(new VerticalPositionMark());
+                        Paragraph p = new Paragraph("End of details");
+                        p.setSpacingAfter(30);
+                        p.add(new Chunk(glue));
+                        p.add("Total Price : " + total);
+                        document.add(p);
 
-        }
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        }
+                    }
+                } catch (DocumentException e) {
+                    e.printStackTrace();
+                }
 
             }
         }
@@ -500,12 +504,12 @@ public class MainActivity extends AppCompatActivity {
 
         String summary = String.valueOf(total - totalExpenses);
         Font summaryFont = new Font(urName, 30.0f, Font.BOLD, BaseColor.BLACK);
-        Chunk summaryOfEverything = new Chunk("TOTAL GROSS : " + "₱" +summary , summaryFont);
+        Chunk summaryOfEverything = new Chunk("TOTAL GROSS : " + "₱" + summary, summaryFont);
         Paragraph summaryParagraph = new Paragraph(summaryOfEverything);
         summaryParagraph.setAlignment(Element.ALIGN_CENTER);
 
         try {
-            document.add( summaryParagraph);
+            document.add(summaryParagraph);
         } catch (DocumentException e) {
             e.printStackTrace();
         }
@@ -519,7 +523,6 @@ public class MainActivity extends AppCompatActivity {
         openPdf();
 
     }
-
 
 
     public PdfPCell getCell(String text, int alignment) {
@@ -555,7 +558,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void saveDataModel(){
+    public void saveDataModel() {
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(MainActivity.this.getApplicationContext());
         SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
@@ -570,22 +573,22 @@ public class MainActivity extends AppCompatActivity {
         prefsEditor.apply();
     }
 
-    public boolean checkSalesSummaryExist(){
+    public boolean checkSalesSummaryExist() {
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(MainActivity.this.getApplicationContext());
         String itemModel = appSharedPrefs.getString("MyObject", "");
-        if (itemModel == null || itemModel.isEmpty()){
+        if (itemModel == null || itemModel.isEmpty()) {
             orderdetails.setText("SALES DETAILS");
             item_quantity.setVisibility(View.VISIBLE);
             item_date.setVisibility(View.VISIBLE);
             btn_finish.setText("NEXT");
-            return  false;
+            return false;
         } else {
             orderdetails.setText("EXPENSE DETAILS");
             item_quantity.setVisibility(View.GONE);
             item_date.setVisibility(View.GONE);
             btn_finish.setText("FINISH");
-            return  true;
+            return true;
         }
 
     }
