@@ -77,10 +77,12 @@
         android:layout_width="match_parent"
         android:hint="ITEM NAME"
         android:singleLine="true"
+        android:visibility="gone"
         android:imeOptions="actionNext"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/item_quantity"
         app:layout_constraintStart_toStartOf="parent"/>
+
 
 
     <EditText
@@ -94,6 +96,18 @@
         app:layout_constraintStart_toStartOf="parent"
  />
 
+    <AutoCompleteTextView
+        android:id="@+id/autocomplete_item_name"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:hint="ITEM NAME"
+        android:singleLine="true"
+        android:imeOptions="actionNext"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/item_quantity"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+
     <EditText
         android:id="@+id/item_price"
         android:layout_marginTop="16dp"
@@ -101,7 +115,7 @@
         android:hint="ITEM PRICE"
         android:inputType="number"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/item_name"
+        app:layout_constraintTop_toBottomOf="@id/autocomplete_item_name"
         app:layout_constraintStart_toStartOf="parent"/>
 
 

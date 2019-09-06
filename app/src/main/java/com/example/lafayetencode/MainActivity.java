@@ -17,6 +17,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -46,6 +49,10 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -60,6 +67,8 @@ import java.util.Locale;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
+
+
     private static String FILE = Environment.getExternalStorageDirectory()
             + "/LafayetteSales.pdf";
 
@@ -70,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
 
     EditText item_name, item_quantity, item_price, item_date;
 
+    AutoCompleteTextView autoCompleteTextView;
+
     Button btn_add, btn_finish, btn_load;
 
     double total = 0;
@@ -79,6 +90,10 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<ItemModel> itemModels = new ArrayList<>();
 
     ArrayList<ExpenseModel> expenseModels = new ArrayList<>();
+
+    ArrayList<String> sheet_item_name = new ArrayList<>();
+
+    ArrayList<String> sheet_item_price = new ArrayList<>();
 
     String currDate = "";
 
@@ -91,11 +106,23 @@ public class MainActivity extends AppCompatActivity {
     boolean isExpense = false;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        autoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.autocomplete_item_name);
+
+
+
+        new DownloadWebpageTask(new AsyncResult() {
+            @Override
+            public void onResult(JSONObject object) {
+                processJson(object);
+            }
+        }).execute("https://spreadsheets.google.com/tq?key=1KYOIsZ3iK9A2pIWOqM1eH7174ZCpNoi8ff1zV9dFF9k");
 
         to_date = findViewById(R.id.to_date);
         from_date = findViewById(R.id.from_date);
@@ -112,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
         if (checkSalesSummaryExist()) {
             isExpense = true;
         }
-
 
         if (Build.VERSION.SDK_INT >= 23) {
             Dexter.withActivity(this)
@@ -591,5 +617,45 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+    }
+
+    private void processJson(JSONObject object) {
+
+        try {
+            JSONArray rows = object.getJSONArray("rows");
+
+            for (int r = 0; r < rows.length(); ++r) {
+                //https://docs.google.com/spreadsheets/d/1KYOIsZ3iK9A2pIWOqM1eH7174ZCpNoi8ff1zV9dFF9k/edit#gid=0
+                //https://docs.google.com/spreadsheets/d/1tJ64Y8hje0ui4ap9U33h3KWwpxT_-JuVMSZzxD2Er8k/edit#gid=1642989198
+                JSONObject row = rows.getJSONObject(r);
+                JSONArray columns = row.getJSONArray("c");
+               sheet_item_name.add(columns.getJSONObject(0).getString("v"));
+               sheet_item_price.add(columns.getJSONObject(1).getString("v"));
+               Log.d("JSON-",""+columns.getJSONObject(0).getString("v"));
+//                int wins = columns.getJSONObject(3).getInt("v");
+//                int draws = columns.getJSONObject(4).getInt("v");
+//                int losses = columns.getJSONObject(5).getInt("v");
+//                int points = columns.getJSONObject(19).getInt("v");
+//                Team team = new Team(position, name, wins, draws, losses, points);
+//                teams.add(team);
+            }
+
+//            final TeamsAdapter adapter = new TeamsAdapter(this, R.layout.team, teams);
+//            listview.setAdapter(adapter);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                (MainActivity.this,android.R.layout.simple_list_item_1,sheet_item_name);
+        autoCompleteTextView.setAdapter(adapter);
+        autoCompleteTextView.setThreshold(1);
+        autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                item_price.setText(sheet_item_price.get(i));
+            }
+        });
     }
 }
