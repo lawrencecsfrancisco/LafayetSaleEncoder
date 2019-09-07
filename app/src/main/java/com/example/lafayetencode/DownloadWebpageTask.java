@@ -1,5 +1,7 @@
 package com.example.lafayetencode;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,8 +13,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 public class DownloadWebpageTask extends AsyncTask<String, Void, String> {
     AsyncResult callback;
-    public DownloadWebpageTask(AsyncResult callback) {
+    Context cxt;
+    private ProgressDialog dialog;
+    public DownloadWebpageTask(Context context, AsyncResult callback) {
         this.callback = callback;
+        this.cxt = context;
+        dialog = new ProgressDialog(context);
+        dialog.setMessage("Downloading item list, please wait.");
+        dialog.show();
     }
     @Override
     protected String doInBackground(String... urls) {
@@ -31,6 +39,9 @@ public class DownloadWebpageTask extends AsyncTask<String, Void, String> {
         int end = result.lastIndexOf("}");
         String jsonResponse = result.substring(start, end);
         try {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
             JSONObject table = new JSONObject(jsonResponse);
             callback.onResult(table);
         } catch (JSONException e) {

@@ -23,6 +23,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,6 +63,7 @@ import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -77,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
     EditText to_date, from_date;
 
-    EditText item_name, item_quantity, item_price, item_date;
+    EditText  item_quantity, item_price, item_date;
 
     AutoCompleteTextView autoCompleteTextView;
 
@@ -105,7 +108,11 @@ public class MainActivity extends AppCompatActivity {
 
     boolean isExpense = false;
 
+    String quanitity_name = "pcs";
 
+    RadioGroup radioGroup;
+
+    HashMap<String, String> hashMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        new DownloadWebpageTask(new AsyncResult() {
+        new DownloadWebpageTask(this,new AsyncResult() {
             @Override
             public void onResult(JSONObject object) {
                 processJson(object);
@@ -127,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
         to_date = findViewById(R.id.to_date);
         from_date = findViewById(R.id.from_date);
         item_date = findViewById(R.id.item_date);
-        item_name = findViewById(R.id.item_name);
         item_quantity = findViewById(R.id.item_quantity);
         item_price = findViewById(R.id.item_price);
         btn_add = findViewById(R.id.btn_add);
@@ -136,9 +142,9 @@ public class MainActivity extends AppCompatActivity {
         textview_load = findViewById(R.id.textview_load);
         orderdetails = findViewById(R.id.orderdetails);
 
-        if (checkSalesSummaryExist()) {
-            isExpense = true;
-        }
+//        if (checkSalesSummaryExist()) {
+//            isExpense = true;
+//        }
 
         if (Build.VERSION.SDK_INT >= 23) {
             Dexter.withActivity(this)
@@ -171,7 +177,16 @@ public class MainActivity extends AppCompatActivity {
                 updateLabel();
             }
         };
+        radioGroup = findViewById(R.id.radioGroup);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                RadioButton rdpcs,rdkilo,rdft,rdbottle,rdcan,rdtank,rdlot,rdset;
+                RadioButton rb=(RadioButton) findViewById(checkedId);
 
+                quanitity_name =rb.getText().toString();
+            }
+        });
         to_date.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -215,21 +230,22 @@ public class MainActivity extends AppCompatActivity {
                 if (!isExpense) {
                     ItemModel itemModel = new ItemModel();
                     itemModel.setItem_date(item_date.getText().toString());
-                    itemModel.setItem_name(item_name.getText().toString());
+                    itemModel.setItem_name(autoCompleteTextView.getText().toString());
                     if (item_price.getText().toString().equals("")) {
                         Toast.makeText(MainActivity.this, "Input price", Toast.LENGTH_SHORT).show();
                         return;
                     } else {
-                        itemModel.setItem_price(Integer.parseInt(item_price.getText().toString()));
+                        itemModel.setItem_price(Double.parseDouble(item_price.getText().toString()));
                     }
                     if (item_quantity.getText().toString().equals("")) {
                         Toast.makeText(MainActivity.this, "Input quantity", Toast.LENGTH_SHORT).show();
                         return;
                     } else {
-                        itemModel.setItem_quantity(Double.parseDouble(item_quantity.getText().toString()));
+                        itemModel.setItem_quantity(Double.parseDouble(item_quantity.getText().toString()) + " " +quanitity_name);
+                        itemModel.setItem_quantity_nonstring(Double.parseDouble(item_quantity.getText().toString()));
                     }
 
-                    item_name.setText("");
+                    autoCompleteTextView.setText("");
                     item_price.setText("");
                     item_quantity.setText("");
                     itemModels.add(itemModel);
@@ -239,14 +255,14 @@ public class MainActivity extends AppCompatActivity {
                     saveDataModel();
                 } else {
                     ExpenseModel expenseModel = new ExpenseModel();
-                    expenseModel.setItem_name(item_name.getText().toString());
+                    expenseModel.setItem_name(autoCompleteTextView.getText().toString());
                     if (item_price.getText().toString().equals("")) {
                         Toast.makeText(MainActivity.this, "Input price", Toast.LENGTH_SHORT).show();
                         return;
                     } else {
                         expenseModel.setItem_price(Integer.parseInt(item_price.getText().toString()));
                     }
-                    item_name.setText("");
+                    autoCompleteTextView.setText("");
                     item_price.setText("");
                     expenseModels.add(expenseModel);
 
@@ -440,7 +456,7 @@ public class MainActivity extends AppCompatActivity {
                     table.setWidthPercentage(100);
                     table.addCell(getCell(String.valueOf(itemModels.get(i).item_quantity + "(" + itemModels.get(i).item_price + ")"), PdfPCell.ALIGN_LEFT));
                     table.addCell(getCell(itemModels.get(i).item_name, PdfPCell.ALIGN_CENTER));
-                    totalPerItem = itemModels.get(i).item_quantity * itemModels.get(i).item_price;
+                    totalPerItem = itemModels.get(i).item_quantity_nonstring * itemModels.get(i).item_price;
                     table.addCell(getCell(String.valueOf(totalPerItem), PdfPCell.ALIGN_RIGHT));
 
                     total = total + totalPerItem;
@@ -630,8 +646,9 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject row = rows.getJSONObject(r);
                 JSONArray columns = row.getJSONArray("c");
                sheet_item_name.add(columns.getJSONObject(0).getString("v"));
-               sheet_item_price.add(columns.getJSONObject(1).getString("v"));
+               hashMap.put(columns.getJSONObject(0).getString("v"),columns.getJSONObject(1).getString("v"));
                Log.d("JSON-",""+columns.getJSONObject(0).getString("v"));
+                Log.d("JSON-",""+columns.getJSONObject(1).getString("v"));
 //                int wins = columns.getJSONObject(3).getInt("v");
 //                int draws = columns.getJSONObject(4).getInt("v");
 //                int losses = columns.getJSONObject(5).getInt("v");
@@ -654,7 +671,7 @@ public class MainActivity extends AppCompatActivity {
         autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                item_price.setText(sheet_item_price.get(i));
+                item_price.setText(hashMap.get(autoCompleteTextView.getText().toString()));
             }
         });
     }
