@@ -1,8 +1,11 @@
 package com.example.lafayetencode;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.BufferedReader;
@@ -35,6 +38,7 @@ public class DownloadWebpageTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String result) {
         // remove the unnecessary parts from the response and construct a JSON
+        try {
         int start = result.indexOf("{", result.indexOf("{") + 1);
         int end = result.lastIndexOf("}");
         String jsonResponse = result.substring(start, end);
@@ -46,6 +50,10 @@ public class DownloadWebpageTask extends AsyncTask<String, Void, String> {
             callback.onResult(table);
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+        } catch(StringIndexOutOfBoundsException siobe){
+            Toast.makeText(cxt, "Please connect to wifi, You have no internet connection", Toast.LENGTH_SHORT).show();
+            ((Activity) cxt).finish();
         }
     }
     private String downloadUrl(String urlString) throws IOException {

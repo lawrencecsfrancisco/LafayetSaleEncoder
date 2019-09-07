@@ -287,6 +287,7 @@ public class MainActivity extends AppCompatActivity {
                                     prevDate = "";
                                     isExpense = true;
                                     orderdetails.setText("EXPENSE DETAILS");
+                                    radioGroup.setVisibility(View.GONE);
                                     item_quantity.setVisibility(View.GONE);
                                     item_date.setVisibility(View.GONE);
                                     btn_finish.setText("FINISH");
