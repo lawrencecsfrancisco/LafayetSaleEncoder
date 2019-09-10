@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
     AutoCompleteTextView autoCompleteTextView;
 
-    Button btn_add, btn_finish, btn_load;
+    Button btn_add, btn_finish, btn_load, btnDownloadList;
 
     double total = 0;
 
@@ -122,25 +122,19 @@ public class MainActivity extends AppCompatActivity {
 
         autoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.autocomplete_item_name);
 
-
-
-        new DownloadWebpageTask(this,new AsyncResult() {
-            @Override
-            public void onResult(JSONObject object) {
-                processJson(object);
-            }
-        }).execute("https://spreadsheets.google.com/tq?key=1KYOIsZ3iK9A2pIWOqM1eH7174ZCpNoi8ff1zV9dFF9k");
-
         to_date = findViewById(R.id.to_date);
         from_date = findViewById(R.id.from_date);
         item_date = findViewById(R.id.item_date);
         item_quantity = findViewById(R.id.item_quantity);
         item_price = findViewById(R.id.item_price);
+        textview_load = findViewById(R.id.textview_load);
+        orderdetails = findViewById(R.id.orderdetails);
+
         btn_add = findViewById(R.id.btn_add);
         btn_finish = findViewById(R.id.btn_finish);
         btn_load = findViewById(R.id.btn_load);
-        textview_load = findViewById(R.id.textview_load);
-        orderdetails = findViewById(R.id.orderdetails);
+     //   btnDownloadList = findViewById(R.id.btnDownloadList);
+
 
 //        if (checkSalesSummaryExist()) {
 //            isExpense = true;
@@ -177,7 +171,18 @@ public class MainActivity extends AppCompatActivity {
                 updateLabel();
             }
         };
-        radioGroup = findViewById(R.id.radioGroup);
+        final RecursiveRadioGroup recursiveRadioGroup = findViewById(R.id.radioGroup);
+        recursiveRadioGroup.setOnCheckedChangeListener(new RecursiveRadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RecursiveRadioGroup group, int checkedId) {
+                RadioButton rdpcs,rdkilo,rdft,rdbottle,rdcan,rdtank,rdlot,rdset;
+                RadioButton rb=(RadioButton) findViewById(checkedId);
+
+                quanitity_name =rb.getText().toString();
+                Toast.makeText(MainActivity.this, ""+quanitity_name, Toast.LENGTH_SHORT).show();
+            }
+        });
+  /*      radioGroup = findViewById(R.id.radioGroup);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
@@ -186,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
 
                 quanitity_name =rb.getText().toString();
             }
-        });
+        });*/
         to_date.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -287,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
                                     prevDate = "";
                                     isExpense = true;
                                     orderdetails.setText("EXPENSE DETAILS");
-                                    radioGroup.setVisibility(View.GONE);
+                                    recursiveRadioGroup.setVisibility(View.GONE);
                                     item_quantity.setVisibility(View.GONE);
                                     item_date.setVisibility(View.GONE);
                                     btn_finish.setText("FINISH");
@@ -363,6 +368,19 @@ public class MainActivity extends AppCompatActivity {
 
 
         });
+
+ /*       btnDownloadList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new DownloadWebpageTask(MainActivity.this,new AsyncResult() {
+                    @Override
+                    public void onResult(JSONObject object) {
+                        processJson(object);
+                    }
+                }).execute("https://spreadsheets.google.com/tq?key=1KYOIsZ3iK9A2pIWOqM1eH7174ZCpNoi8ff1zV9dFF9k");
+
+            }
+        });*/
 
 
     }
